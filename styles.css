@@ -227,7 +227,8 @@ nav {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, var(--deep-purple) 0%, var(--burgundy) 100%);
+    background: linear-gradient(135deg, rgba(96, 31, 78, 0.5) 0%, rgba(159, 46, 81, 0.5) 100%),
+                url('images/hero-banner.jpg') center/cover no-repeat;
     color: var(--cream);
     padding: 6rem 2rem;
     text-align: center;
