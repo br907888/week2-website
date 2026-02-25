@@ -320,7 +320,7 @@ nav {
 
 .btn-secondary:hover {
     background-color: var(--cream);
-    color: var(--deep-purple);
+    color: var(--heading-color);
 }
 
 /* Sections */
@@ -687,7 +687,7 @@ section {
 }
 
 .location-info .hours-list h4 {
-    color: var(--deep-purple);
+    color: var(--heading-color);
     margin-bottom: 0.5rem;
 }
 
