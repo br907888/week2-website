@@ -314,13 +314,13 @@ nav {
 
 .btn-secondary {
     background-color: transparent;
-    color: var(--cream);
-    border: 2px solid var(--cream);
+    color: var(--light-text);
+    border: 2px solid var(--light-text);
 }
 
 .btn-secondary:hover {
-    background-color: var(--cream);
-    color: var(--heading-color);
+    background-color: var(--light-text);
+    color: var(--deep-purple);
 }
 
 /* Sections */
