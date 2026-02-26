@@ -228,6 +228,45 @@ nav {
     color: var(--cream);
 }
 
+/* Dark Mode Toggle Button */
+#theme-toggle {
+    background: transparent;
+    border: 1.5px solid rgba(254, 249, 243, 0.45);
+    color: var(--light-text);
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background-color var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+    white-space: nowrap;
+    order: 1; /* places button at far-right of the flex nav, after .nav-links */
+}
+
+#theme-toggle::before {
+    content: '☀\FE0E'; /* \FE0E = text variation selector, prevents colored emoji rendering */
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+[data-theme="dark"] #theme-toggle::before {
+    content: '☽\FE0E'; /* \FE0E = text variation selector */
+}
+
+#theme-toggle:hover {
+    background-color: var(--burgundy);
+    border-color: var(--burgundy);
+}
+
+#theme-toggle:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+}
+
 /* Mobile Navigation */
 .nav-toggle {
     display: none;
@@ -1060,6 +1099,11 @@ footer {
 @media (max-width: 768px) {
     .nav-toggle {
         display: flex;
+    }
+
+    #theme-toggle {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.8rem;
     }
 
     .nav-links {
