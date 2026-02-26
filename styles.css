@@ -244,23 +244,27 @@ nav {
     transition: background-color var(--transition-speed) ease,
                 border-color var(--transition-speed) ease;
     white-space: nowrap;
-    order: 1;
+    order: 1; /* places button at far-right of the flex nav, after .nav-links */
 }
 
 #theme-toggle::before {
-    content: '☀';
+    content: '☀\FE0E'; /* \FE0E = text variation selector, prevents colored emoji rendering */
     font-size: 1.05rem;
     line-height: 1;
-    transition: content var(--transition-speed) ease;
 }
 
 [data-theme="dark"] #theme-toggle::before {
-    content: '☽';
+    content: '☽\FE0E'; /* \FE0E = text variation selector */
 }
 
 #theme-toggle:hover {
     background-color: var(--burgundy);
     border-color: var(--burgundy);
+}
+
+#theme-toggle:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
 }
 
 /* Mobile Navigation */
