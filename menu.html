@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu | Every Witch Way</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        (function () {
+            var theme = localStorage.getItem('theme');
+            if (theme) document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 <body>
     <!-- Header/Navigation -->
@@ -16,6 +22,7 @@
                 <span></span>
                 <span></span>
             </div>
+            <button id="theme-toggle" type="button">Dark Mode</button>
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="menu.html" class="active">Menu</a></li>
