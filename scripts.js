@@ -120,7 +120,8 @@ function initDarkMode() {
     if (!toggle) return;
 
     // Apply saved preference, or fall back to OS preference
-    const saved = localStorage.getItem('theme');
+    let saved;
+    try { saved = localStorage.getItem('theme'); } catch (e) { /* storage blocked (e.g. private mode) */ }
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initial = saved ?? (prefersDark ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', initial);
@@ -130,7 +131,7 @@ function initDarkMode() {
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) { /* storage blocked */ }
         toggle.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
     });
 }
