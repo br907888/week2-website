@@ -15,6 +15,23 @@
     --dark-text: #2d2d2d;
     --light-text: #f5f5f5;
     --transition-speed: 0.3s;
+
+    /* Semantic tokens used for dark mode overrides */
+    --bg-surface: #ffffff;
+    --text-muted: #666666;
+    --border-color: #dddddd;
+    --heading-color: var(--deep-purple);
+    --input-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --cream: #1a0d15;
+    --dark-text: #f0e8ee;
+    --bg-surface: #231320;
+    --text-muted: #b09ab0;
+    --border-color: #3d2538;
+    --heading-color: #e8b4d0;
+    --input-bg: #2d1a28;
 }
 
 body {
@@ -23,6 +40,7 @@ body {
     color: var(--dark-text);
     background-color: var(--cream);
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Page Transition Animations */
@@ -139,7 +157,7 @@ h2,
 h3,
 h4 {
     font-family: Georgia, 'Times New Roman', serif;
-    color: var(--deep-purple);
+    color: var(--heading-color);
 }
 
 h1 {
@@ -296,12 +314,12 @@ nav {
 
 .btn-secondary {
     background-color: transparent;
-    color: var(--cream);
-    border: 2px solid var(--cream);
+    color: var(--light-text);
+    border: 2px solid var(--light-text);
 }
 
 .btn-secondary:hover {
-    background-color: var(--cream);
+    background-color: var(--light-text);
     color: var(--deep-purple);
 }
 
@@ -400,7 +418,7 @@ section {
 
 /* Featured Section (Home) */
 .featured {
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 .featured-grid {
@@ -437,7 +455,7 @@ section {
 
 /* About Preview */
 .about-preview {
-    background: linear-gradient(to right, var(--cream) 0%, white 100%);
+    background: linear-gradient(to right, var(--cream) 0%, var(--bg-surface) 100%);
 }
 
 .about-grid {
@@ -477,7 +495,7 @@ section {
 
 /* Menu Page */
 .menu-section {
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 .menu-category {
@@ -511,7 +529,7 @@ section {
 }
 
 .menu-item h4 {
-    color: var(--deep-purple);
+    color: var(--heading-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -524,7 +542,7 @@ section {
 }
 
 .menu-item p {
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.95rem;
     margin-bottom: 0;
 }
@@ -538,7 +556,7 @@ section {
 
 /* About Page */
 .story-section {
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 .story-content {
@@ -588,7 +606,7 @@ section {
 
 .team-member {
     text-align: center;
-    background: white;
+    background: var(--bg-surface);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(96, 31, 78, 0.1);
@@ -615,7 +633,7 @@ section {
 /* Locations Page */
 .locations-intro {
     text-align: center;
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 .locations-grid {
@@ -627,7 +645,7 @@ section {
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: center;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 3rem;
@@ -661,7 +679,7 @@ section {
     align-items: flex-start;
     gap: 0.5rem;
     margin: 1rem 0;
-    color: #666;
+    color: var(--text-muted);
 }
 
 .location-info .hours-list {
@@ -669,7 +687,7 @@ section {
 }
 
 .location-info .hours-list h4 {
-    color: var(--deep-purple);
+    color: var(--heading-color);
     margin-bottom: 0.5rem;
 }
 
@@ -691,7 +709,7 @@ section {
 }
 
 .contact-content {
-    background-color: white;
+    background-color: var(--bg-surface);
 }
 
 .contact-grid {
@@ -713,7 +731,7 @@ section {
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    color: var(--deep-purple);
+    color: var(--heading-color);
     font-weight: bold;
 }
 
@@ -722,10 +740,12 @@ section {
 .form-group select {
     width: 100%;
     padding: 0.8rem 1rem;
-    border: 2px solid #ddd;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    background-color: var(--input-bg);
+    color: var(--dark-text);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .form-group input:focus,
@@ -870,7 +890,7 @@ section {
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .info-item:last-child {
