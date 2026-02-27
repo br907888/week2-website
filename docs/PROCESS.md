@@ -2,7 +2,7 @@
 
 ## 1. What did you build?
 
-For my iterative feature build, I opted to work with Claude and develop a toggle for the website I have been modifying since Week 2. The toggle specifically shifts the site's visual styling into a dark mode, with the ability to switch back and forth between the two modes. I also wanted to implement the presence of localStorage persistence, so any user interacting with the toggle will return to the mode they set the site to, even after closing the broswer. I wanted to implement a feature that was simpler in scope, but more foundational and digestable for my own undertsanding of multi-iterative workflow.
+For my iterative feature build, I opted to work with Claude and develop a toggle for the website I have been modifying since Week 2. The toggle specifically shifts the site's visual styling into a dark mode, with the ability to switch back and forth between the two modes. I also wanted to implement the presence of localStorage persistence, so any user interacting with the toggle will return to the mode they set the site to, even after closing the browser. I wanted to implement a feature that was simpler in scope, but more foundational and digestable for my own undertsanding of multi-iterative workflow.
 
 ## 2. How did micro-iteration feel? Was working in small steps natural or frustrating? Why?
 
