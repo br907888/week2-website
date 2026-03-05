@@ -72,6 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Dark mode
     initDarkMode();
+
+    // Contact form validation
+    initContactForm();
 });
 
 // Scroll Reveal Animation
@@ -150,6 +153,110 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Contact Form Validation
+function initContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    const validators = {
+        name: {
+            el: document.getElementById('name'),
+            errorEl: document.getElementById('name-error'),
+            validate(val) {
+                const trimmed = val.trim();
+                if (!trimmed) return 'Please enter your name.';
+                if (trimmed.length < 2) return 'Name must be at least 2 characters.';
+                if (trimmed.length > 100) return 'Name must be 100 characters or fewer.';
+                if (!/^[\p{L}\s'\-]+$/u.test(trimmed)) return 'Name may only contain letters, spaces, hyphens, and apostrophes.';
+                return '';
+            }
+        },
+        email: {
+            el: document.getElementById('email'),
+            errorEl: document.getElementById('email-error'),
+            validate(val) {
+                const trimmed = val.trim();
+                if (!trimmed) return 'Please enter your email address.';
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) return 'Please enter a valid email address (e.g. name@example.com).';
+                return '';
+            }
+        },
+        subject: {
+            el: document.getElementById('subject'),
+            errorEl: document.getElementById('subject-error'),
+            validate(val) {
+                if (!val) return 'Please select a topic so we can route your message.';
+                return '';
+            }
+        },
+        message: {
+            el: document.getElementById('message'),
+            errorEl: document.getElementById('message-error'),
+            validate(val) {
+                const trimmed = val.trim();
+                if (!trimmed) return 'Please enter your message.';
+                if (trimmed.length < 10) return `Message is too short — please add a bit more detail (${trimmed.length}/10 characters).`;
+                if (trimmed.length > 2000) return `Message is too long — please keep it under 2,000 characters (${trimmed.length}/2000).`;
+                return '';
+            }
+        }
+    };
+
+    function validateField(key, showError) {
+        const { el, errorEl, validate } = validators[key];
+        const error = validate(el.value);
+        if (showError) {
+            errorEl.textContent = error;
+            el.classList.toggle('input-error', !!error);
+            el.classList.toggle('input-valid', !error);
+        }
+        return !error;
+    }
+
+    function updateSubmitState() {
+        const allValid = Object.keys(validators).every(
+            key => !validators[key].validate(validators[key].el.value)
+        );
+        submitBtn.disabled = !allValid;
+    }
+
+    Object.keys(validators).forEach(key => {
+        const { el } = validators[key];
+        const event = el.tagName === 'SELECT' ? 'change' : 'input';
+
+        el.addEventListener(event, () => {
+            validateField(key, true);
+            updateSubmitState();
+        });
+
+        el.addEventListener('blur', () => {
+            validateField(key, true);
+            updateSubmitState();
+        });
+    });
+}
+
+function resetFormValidation() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+
+    ['name', 'email', 'subject', 'message'].forEach(key => {
+        const el = document.getElementById(key);
+        const errorEl = document.getElementById(key + '-error');
+        if (el) {
+            el.classList.remove('input-error', 'input-valid');
+        }
+        if (errorEl) {
+            errorEl.textContent = '';
+        }
+    });
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+}
+
 // Form submission handler (for contact page)
 function handleSubmit(event) {
     event.preventDefault();
@@ -210,12 +317,10 @@ function resetContactForm() {
         successScreen.remove();
         form.style.display = 'block';
 
-        // Re-enable submit button
+        // Reset validation state and disable submit until re-validated
         const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerHTML = 'Send Message';
-            submitBtn.disabled = false;
-        }
+        if (submitBtn) submitBtn.innerHTML = 'Send Message';
+        resetFormValidation();
 
         // Fade form back in
         setTimeout(() => {

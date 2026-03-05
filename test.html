@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation — Test Suite</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #111;
+            color: #eee;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        h1 { color: #ec8622; font-size: 1.6rem; margin-bottom: 0.25rem; }
+        .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+        .suite { margin-bottom: 1.5rem; }
+        .suite-title {
+            color: #b09ad0;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #333;
+        }
+        .test {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            margin: 0.15rem 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .test.pass { color: #81c784; }
+        .test.fail { color: #e57373; background: rgba(229, 115, 115, 0.08); }
+        .badge { font-size: 0.75rem; font-weight: bold; min-width: 2.2em; }
+        .pass .badge::before { content: 'PASS'; color: #4caf50; }
+        .fail .badge::before { content: 'FAIL'; color: #e57373; }
+        .detail {
+            display: block;
+            font-size: 0.8rem;
+            color: #ffb3b3;
+            padding: 0.2rem 0.5rem 0.4rem 3.4rem;
+            font-style: italic;
+        }
+        #summary {
+            margin-top: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        #summary.all-pass {
+            background: rgba(76, 175, 80, 0.12);
+            border: 1px solid #4caf50;
+            color: #81c784;
+        }
+        #summary.has-fail {
+            background: rgba(229, 115, 115, 0.12);
+            border: 1px solid #e57373;
+            color: #e57373;
+        }
+        #summary .counts { font-size: 0.85rem; margin-top: 0.25rem; font-weight: normal; color: #aaa; }
+        #loading { color: #888; font-style: italic; }
+        /* The real form must exist in the DOM for scripts.js to wire up;
+           hide it visually but keep it layout-accessible */
+        #live-form-wrap {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 600px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Stubs required by scripts.js (nav, theme toggle, page wrapper) ── -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">Every <span>Witch</span> Way</a>
+            <div class="nav-toggle" id="navToggle"><span></span><span></span><span></span></div>
+            <button id="theme-toggle" type="button">Dark Mode</button>
+            <ul class="nav-links" id="navLinks"></ul>
+        </nav>
+    </header>
+    <div class="page-wrapper"><!-- page wrapper stub --></div>
+
+    <!-- ── Live form (off-screen, fully wired by scripts.js) ── -->
+    <div id="live-form-wrap">
+        <div class="contact-form">
+            <form id="contactForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your name">
+                    <span class="field-error" id="name-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    <span class="field-error" id="email-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Select a topic</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="catering">Catering Request</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="careers">Career Opportunities</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="field-error" id="subject-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Message</label>
+                    <textarea id="message" name="message" required placeholder="How can we help you?"></textarea>
+                    <span class="field-error" id="message-error" aria-live="polite"></span>
+                </div>
+                <button type="submit" class="btn btn-primary" disabled>Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Test runner UI ── -->
+    <h1>Form Validation — Test Suite</h1>
+    <p class="subtitle">Tests run against the live form wired by scripts.js</p>
+    <div id="results"><p id="loading">Running tests…</p></div>
+    <div id="summary"></div>
+
+    <!-- Load the real scripts first so its DOMContentLoaded fires before ours -->
+    <script src="scripts.js"></script>
+    <script>
+    'use strict';
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    function fire(el, type) {
+        el.dispatchEvent(new Event(type, { bubbles: true }));
+    }
+
+    function setInput(id, value) {
+        const el = document.getElementById(id);
+        el.value = value;
+        const eventType = el.tagName === 'SELECT' ? 'change' : 'input';
+        fire(el, eventType);
+    }
+
+    function blurField(id) {
+        fire(document.getElementById(id), 'blur');
+    }
+
+    function errorText(id) {
+        return document.getElementById(id + '-error').textContent.trim();
+    }
+
+    function hasClass(id, cls) {
+        return document.getElementById(id).classList.contains(cls);
+    }
+
+    function submitDisabled() {
+        return document.querySelector('#contactForm button[type="submit"]').disabled;
+    }
+
+    function resetForm() {
+        // Clear all fields and reset visual state
+        ['name', 'email', 'message'].forEach(id => setInput(id, ''));
+        setInput('subject', '');
+        ['name', 'email', 'subject', 'message'].forEach(id => {
+            document.getElementById(id).classList.remove('input-error', 'input-valid');
+            document.getElementById(id + '-error').textContent = '';
+        });
+    }
+
+    // ── Test harness ─────────────────────────────────────────────────────────
+    const suites = [];
+    let currentSuite = null;
+
+    function suite(name) {
+        currentSuite = { name, tests: [] };
+        suites.push(currentSuite);
+    }
+
+    function test(description, fn) {
+        try {
+            fn();
+            currentSuite.tests.push({ description, pass: true });
+        } catch (e) {
+            currentSuite.tests.push({ description, pass: false, detail: e.message });
+        }
+    }
+
+    function assert(condition, msg) {
+        if (!condition) throw new Error(msg || 'assertion failed');
+    }
+
+    function eq(a, b) {
+        assert(a === b, `expected ${JSON.stringify(b)} but got ${JSON.stringify(a)}`);
+    }
+
+    // ── Test definitions ─────────────────────────────────────────────────────
+    function runTests() {
+
+        // 1 ── Initial state
+        suite('Initial state');
+        test('submit button is disabled on page load', () => assert(submitDisabled()));
+        test('no error messages are visible on load',  () => {
+            ['name', 'email', 'subject', 'message'].forEach(id =>
+                eq(errorText(id), '')
+            );
+        });
+        test('no input-error classes on load', () => {
+            ['name', 'email', 'subject', 'message'].forEach(id =>
+                assert(!hasClass(id, 'input-error'))
+            );
+        });
+
+        // 2 ── Name field
+        suite('Name field');
+
+        test('blur on empty field shows error', () => {
+            resetForm();
+            blurField('name');
+            assert(errorText('name') !== '', 'expected error text');
+        });
+        test('blur on empty adds input-error class', () => {
+            resetForm(); blurField('name');
+            assert(hasClass('name', 'input-error'));
+        });
+        test('single character shows too-short error', () => {
+            resetForm();
+            setInput('name', 'A'); blurField('name');
+            assert(errorText('name').includes('2 characters'));
+        });
+        test('digits in name show character error', () => {
+            resetForm();
+            setInput('name', 'John123'); blurField('name');
+            assert(errorText('name') !== '');
+        });
+        test('valid name clears error', () => {
+            resetForm();
+            blurField('name'); // trigger error first
+            setInput('name', 'Jane Doe'); blurField('name');
+            eq(errorText('name'), '');
+        });
+        test('valid name adds input-valid class', () => {
+            resetForm();
+            setInput('name', 'Jane Doe'); blurField('name');
+            assert(hasClass('name', 'input-valid'));
+        });
+        test('valid name removes input-error class', () => {
+            resetForm();
+            blurField('name'); // add error
+            setInput('name', 'Jane Doe'); // fix it
+            assert(!hasClass('name', 'input-error'));
+        });
+
+        // 3 ── Email field
+        suite('Email field');
+
+        test('blur on empty shows error', () => {
+            resetForm(); blurField('email');
+            assert(errorText('email') !== '');
+        });
+        test('missing @ shows error', () => {
+            resetForm();
+            setInput('email', 'notanemail'); blurField('email');
+            assert(errorText('email') !== '');
+        });
+        test('no TLD shows error', () => {
+            resetForm();
+            setInput('email', 'test@domain'); blurField('email');
+            assert(errorText('email') !== '');
+        });
+        test('valid email clears error', () => {
+            resetForm();
+            blurField('email');
+            setInput('email', 'hello@example.com'); blurField('email');
+            eq(errorText('email'), '');
+        });
+        test('valid email adds input-valid class', () => {
+            resetForm();
+            setInput('email', 'hello@example.com'); blurField('email');
+            assert(hasClass('email', 'input-valid'));
+        });
+        test('error updates live as user types (input event)', () => {
+            resetForm();
+            blurField('email');
+            setInput('email', 'hello@example.com'); // fires 'input' — no blur needed
+            eq(errorText('email'), '');
+        });
+
+        // 4 ── Subject field
+        suite('Subject field');
+
+        test('unselected shows error on change', () => {
+            resetForm();
+            const sel = document.getElementById('subject');
+            sel.value = '';
+            fire(sel, 'change');
+            assert(errorText('subject') !== '');
+        });
+        test('valid selection clears error', () => {
+            resetForm();
+            setInput('subject', 'general');
+            eq(errorText('subject'), '');
+        });
+        test('all valid options pass', () => {
+            ['general', 'catering', 'feedback', 'careers', 'other'].forEach(val => {
+                setInput('subject', val);
+                eq(errorText('subject'), '');
+            });
+        });
+
+        // 5 ── Message field
+        suite('Message field');
+
+        test('blur on empty shows error', () => {
+            resetForm(); blurField('message');
+            assert(errorText('message') !== '');
+        });
+        test('9-char message shows too-short error with count', () => {
+            resetForm();
+            setInput('message', '123456789'); blurField('message');
+            assert(errorText('message').includes('9/10'));
+        });
+        test('10-char message is valid', () => {
+            resetForm();
+            setInput('message', '1234567890'); blurField('message');
+            eq(errorText('message'), '');
+        });
+        test('2001-char message shows too-long error with count', () => {
+            resetForm();
+            setInput('message', 'A'.repeat(2001)); blurField('message');
+            assert(errorText('message').includes('2001/2000'));
+        });
+        test('2000-char message is valid', () => {
+            resetForm();
+            setInput('message', 'A'.repeat(2000)); blurField('message');
+            eq(errorText('message'), '');
+        });
+
+        // 6 ── Submit gate (DOM-driven)
+        suite('Submit gate');
+
+        test('button stays disabled when only name is filled', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            assert(submitDisabled());
+        });
+        test('button stays disabled when name+email are filled', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            setInput('email', 'jane@example.com');
+            assert(submitDisabled());
+        });
+        test('button stays disabled when name+email+subject filled', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            setInput('email', 'jane@example.com');
+            setInput('subject', 'general');
+            assert(submitDisabled());
+        });
+        test('button enables when all four fields are valid', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            setInput('email', 'jane@example.com');
+            setInput('subject', 'general');
+            setInput('message', 'Hello, I have a question about your catering services.');
+            assert(!submitDisabled(), 'expected button to be enabled');
+        });
+        test('corrupting email re-disables button', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            setInput('email', 'jane@example.com');
+            setInput('subject', 'general');
+            setInput('message', 'Hello, I have a question about your catering services.');
+            // All valid — now break email
+            setInput('email', 'not-valid');
+            assert(submitDisabled(), 'expected button to re-disable');
+        });
+        test('fixing email re-enables button', () => {
+            resetForm();
+            setInput('name', 'Jane Doe');
+            setInput('email', 'bad');
+            setInput('subject', 'general');
+            setInput('message', 'Hello, I have a question about your catering services.');
+            assert(submitDisabled());
+            setInput('email', 'jane@example.com');
+            assert(!submitDisabled(), 'expected button to re-enable');
+        });
+    }
+
+    // ── Render ───────────────────────────────────────────────────────────────
+    function renderResults() {
+        let totalPass = 0, totalFail = 0;
+        const container = document.getElementById('results');
+        container.innerHTML = '';
+
+        suites.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'suite';
+
+            const title = document.createElement('div');
+            title.className = 'suite-title';
+            title.textContent = s.name;
+            div.appendChild(title);
+
+            s.tests.forEach(t => {
+                const row = document.createElement('div');
+                row.className = 'test ' + (t.pass ? 'pass' : 'fail');
+                row.innerHTML = `<span class="badge"></span><span>${t.description}</span>`;
+                div.appendChild(row);
+                if (!t.pass && t.detail) {
+                    const d = document.createElement('span');
+                    d.className = 'detail';
+                    d.textContent = t.detail;
+                    div.appendChild(d);
+                }
+                t.pass ? totalPass++ : totalFail++;
+            });
+
+            container.appendChild(div);
+        });
+
+        const summary = document.getElementById('summary');
+        const total = totalPass + totalFail;
+        summary.className = totalFail === 0 ? 'all-pass' : 'has-fail';
+        summary.innerHTML = totalFail === 0
+            ? `All ${total} tests passed`
+            : `${totalFail} of ${total} tests failed`;
+        summary.innerHTML += `<div class="counts">${totalPass} passed · ${totalFail} failed</div>`;
+    }
+
+    // Run after scripts.js DOMContentLoaded has fired (it registered first)
+    document.addEventListener('DOMContentLoaded', function () {
+        runTests();
+        renderResults();
+    });
+    </script>
+</body>
+</html>
